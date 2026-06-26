@@ -102,12 +102,10 @@ def nside_to_level(nside):
     Returns
     -------
     level : int
-        The level of the HEALPix cells
+        The level of the HEALPix cells, or -1 if the value of nside is invalid.
     """
-    nside = np.asarray(nside, dtype=np.int64)
-
-    _validate_nside(nside)
-    return np.log2(nside).astype(np.int64)
+    level = _core.bit_scan_reverse(nside)
+    return np.where((1 << level) == nside, level, -1)
 
 
 def uniq_to_level_ipix(uniq):
@@ -126,18 +124,14 @@ def uniq_to_level_ipix(uniq):
     Returns
     -------
     level, ipix: int, int
-        The level and index of the HEALPix cell computed from ``uniq``.
+        The level and index of the HEALPix cell computed from ``uniq``, or -1
+        if the input value is invalid.
     """
-    uniq = np.asarray(uniq, dtype=np.int64)
-
-    level = (np.log2(uniq // 4)) // 2
-    level = level.astype(np.int64)
-    _validate_level(level)
-
-    ipix = uniq - (1 << 2 * (level + 1))
-    _validate_npix(level, ipix)
-
-    return level, ipix
+    good = uniq >= 4
+    i = _core.bit_scan_reverse(uniq) >> 1
+    level = i - 1
+    ipix = uniq - (np.int64(1) << (i << 1))
+    return np.where(good, level, -1), np.where(good, ipix, -1)
 
 
 def level_ipix_to_uniq(level, ipix):
