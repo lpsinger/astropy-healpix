@@ -36,11 +36,10 @@ def test_level_to_nside():
     assert exc.value.args[0] == "level must be positive"
 
 
-def test_nside_to_level():
-    assert nside_to_level(1024) == 10
-    with pytest.raises(ValueError) as exc:
-        nside_to_level(511)
-    assert exc.value.args[0] == "nside must be a power of two"
+@pytest.mark.parametrize("level", list(range(1, 30)))
+def test_nside_to_level(level):
+    nside = level_to_nside(level)
+    assert nside_to_level(nside) == level
 
 
 def test_level_ipix_to_uniq():
@@ -62,6 +61,17 @@ def test_uniq_to_level_ipix(level):
 
     level_res, ipix_res = uniq_to_level_ipix(level_ipix_to_uniq(level, ipix))
     assert np.all(level_res == level) & np.all(ipix_res == ipix)
+
+
+@pytest.mark.parametrize("level", [0, 5, 10, 15, 20, 22, 24, 25, 26, 27, 28, 29])
+def test_uniq_to_level_ipix_boundary(level):
+    # The last pixel of each level is the worst case for a floating-point level
+    # computation: uniq is just below a power of two, where log2 mis-rounds.
+    npix = 3 << 2 * (level + 1)
+    ipix = npix - 1
+    level_res, ipix_res = uniq_to_level_ipix(level_ipix_to_uniq(level, ipix))
+    assert level_res == level
+    assert ipix_res == ipix
 
 
 def test_nside_to_pixel_area():

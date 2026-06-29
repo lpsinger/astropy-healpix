@@ -4,6 +4,16 @@
 Changes
 *******
 
+2.0.0 (unreleased)
+==================
+
+- Require Numpy >= 2.
+
+- Fix incorrect return values of ``uniq_to_level_ipix`` near npix boundaries.
+
+- The functions ``nside_to_level`` and ``uniq_to_level_ipix`` no longer raise
+  exceptions for invalid input values. Instead, they return -1.
+
 1.1.3 (2026-01-19)
 ==================
 
