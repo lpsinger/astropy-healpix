@@ -4,7 +4,7 @@
 Changes
 *******
 
-2.0.1 (unreleased)
+2.0.1 (2026-07-20)
 ==================
 
 - Have ``nside_to_level`` return a 64-bit integer. It is very common to use the
